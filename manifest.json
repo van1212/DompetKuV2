@@ -1,0 +1,22 @@
+{
+  "name": "DompetKu",
+  "short_name": "DompetKu",
+  "description": "Catatan keuangan harian",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#7c6aff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "logo1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

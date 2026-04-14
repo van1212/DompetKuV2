@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7c6aff">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>DompetKu — Catatan Keuangan</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">Dompet<span>Ku</span></div>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">&#8592;</button>
+    <div class="month-label" id="monthLabel"></div>
+    <button onclick="changeMonth(1)">&#8594;</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SUMMARY -->
+  <div class="summary-grid">
+    <div class="card">
+      <div class="card-label">Pemasukan</div>
+      <div class="card-amount income" id="totalIncome">Rp 0</div>
+      <div class="card-sub" id="incomeCount">0 transaksi</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Pengeluaran</div>
+      <div class="card-amount expense" id="totalExpense">Rp 0</div>
+      <div class="card-sub" id="expenseCount">0 transaksi</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Saldo</div>
+      <div class="card-amount balance" id="balance">Rp 0</div>
+      <div class="card-sub" id="savingRate">Tingkat tabungan: 0%</div>
+    </div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="budget-card">
+    <div class="budget-header">
+      <div class="budget-title">🎯 Target Budget Bulanan</div>
+      <button class="budget-edit-btn" onclick="openBudgetModal()">Edit Budget</button>
+    </div>
+    <div class="budget-items" id="budgetItems"></div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="content-grid">
+    <div class="left-panel">
+
+      <!-- CHART -->
+      <div class="chart-card">
+        <div class="chart-title">📈 Tren 7 Hari Terakhir</div>
+        <div class="chart-wrap">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="tx-card">
+        <div class="tx-header">
+          <div class="tx-title">📋 Riwayat Transaksi</div>
+          <button class="add-btn" onclick="openModal()">+ Tambah</button>
+        </div>
+        <div class="tx-list" id="txList"></div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <!-- QUICK ADD -->
+      <div class="quick-card">
+        <div class="quick-title">⚡ Catat Cepat</div>
+        <div class="type-toggle">
+          <button class="type-btn active-income" id="quickTypeIncome" onclick="setQuickType('income')">+ Pemasukan</button>
+          <button class="type-btn" id="quickTypeExpense" onclick="setQuickType('expense')">− Pengeluaran</button>
+        </div>
+        <div class="input-group">
+          <div class="input-label">Nominal</div>
+          <input class="inp" type="number" id="quickAmount" placeholder="50000" />
+        </div>
+        <div class="input-group">
+          <div class="input-label">Keterangan</div>
+          <input class="inp" type="text" id="quickNote" placeholder="Makan siang..." />
+        </div>
+        <div class="input-group">
+          <div class="input-label">Kategori</div>
+          <select class="inp" id="quickCat"></select>
+        </div>
+        <button class="submit-btn" onclick="quickAdd()">Simpan</button>
+      </div>
+
+      <!-- PIE CHART -->
+      <div class="pie-card">
+        <div class="pie-title">🍩 Pengeluaran per Kategori</div>
+        <div class="pie-wrap">
+          <canvas id="pieChart" width="140" height="140"></canvas>
+          <div class="pie-center">
+            <div class="pie-center-pct" id="pieTotal">Rp 0</div>
+            <div class="pie-center-label">total</div>
+          </div>
+        </div>
+        <div class="cat-legend" id="catLegend"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-title">Tambah Transaksi</div>
+    <div class="type-toggle" style="margin-bottom:14px">
+      <button class="type-btn active-income" id="modalTypeIncome" onclick="setModalType('income')">+ Pemasukan</button>
+      <button class="type-btn" id="modalTypeExpense" onclick="setModalType('expense')">− Pengeluaran</button>
+    </div>
+    <div class="input-group">
+      <div class="input-label">Keterangan</div>
+      <input class="inp" type="text" id="modalNote" placeholder="Gaji, makan, dll..." />
+    </div>
+    <div class="modal-row">
+      <div class="input-group">
+        <div class="input-label">Nominal</div>
+        <input class="inp" type="number" id="modalAmount" placeholder="0" />
+      </div>
+      <div class="input-group">
+        <div class="input-label">Tanggal</div>
+        <input class="inp" type="date" id="modalDate" />
+      </div>
+    </div>
+    <div class="input-group">
+      <div class="input-label">Kategori</div>
+      <select class="inp" id="modalCat"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" onclick="closeModal()">Batal</button>
+      <button class="save-btn" onclick="saveModal()">Simpan Transaksi</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUDGET MODAL -->
+<div class="modal-overlay" id="budgetModal">
+  <div class="modal">
+    <div class="modal-title">🎯 Edit Budget Bulanan</div>
+    <div id="budgetInputs"></div>
+    <div class="modal-footer">
+      <button class="cancel-btn" onclick="closeBudgetModal()">Batal</button>
+      <button class="save-btn" onclick="saveBudget()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
+</body>
+</html>
